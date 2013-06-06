@@ -52,6 +52,7 @@ class SubmittedForm extends DataObject {
 	public function getCMSFields() {
 		$fields = parent::getCMSFields();
 		$fields->removeByName('Values');
+		$fields->removeByName('ParentID');
 
 		$values = new GridField(
 			"Values", 
