@@ -237,7 +237,7 @@
 
 					// variables
 					var options = $(this).parent("li");
-					var action = userforms.appendToURL($("#Form_EditForm").attr("action"), '/field/Fields/addoptionfield');
+					var action = userforms.appendToURL($("form.cms-edit-form").first().attr("action"), '/field/Fields/addoptionfield');
 					var parent = $(this).attr("rel");
 
 					// send ajax request to the page

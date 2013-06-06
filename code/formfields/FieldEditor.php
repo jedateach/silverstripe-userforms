@@ -124,6 +124,7 @@ class FieldEditor extends FormField {
 	public function saveInto(DataObjectInterface $record) {
 		$name = $this->name;
 		$fieldSet = $record->$name();
+		$joinfield = $this->form->getRecord()->getRemoteJoinField($this->name, 'has_many');
 		
 		// store the field IDs and delete the missing fields
 		// alternatively, we could delete all the fields and re add them
@@ -142,17 +143,17 @@ class FieldEditor extends FormField {
 
 				// if it exists in the db update it
 				if($editable) {
-			
+
 					// remove it from the removed fields list
 					if(isset($missingFields[$editable->ID]) && isset($newEditableData) && is_array($newEditableData)) {
 						unset($missingFields[$editable->ID]);
 					}
 
 					// set form id
-					if($editable->ParentID == 0) {
-						$editable->ParentID = $record->ID;
+					if($editable->$joinfield == 0) {
+						$editable->$joinfield = $record->ID;
 					}
-					
+
 					// save data
 					$editable->populateFromPostData($newEditableData);
 				}
@@ -182,11 +183,13 @@ class FieldEditor extends FormField {
 		if($parentID) {
 			$parentID = (int)$parentID;
 			
+			$joinfield = $this->form->getRecord()->getRemoteJoinField($this->name, 'has_many');
+
 			$sqlQuery = new SQLQuery();
 			$sqlQuery = $sqlQuery
 				->setSelect('MAX(Sort)')
 				->setFrom("EditableFormField")
-				->setWhere("ParentID = $parentID");
+				->setWhere("$joinfield = $parentID");
 
 			$sort = $sqlQuery->execute()->value() + 1;
 
@@ -198,11 +201,11 @@ class FieldEditor extends FormField {
 
 			if(is_subclass_of($className, "EditableFormField")) {
 				$field = new $className();
-				$field->ParentID = $this->form->getRecord()->ID;
+				$field->{$joinfield} = $this->form->getRecord()->ID;
 				$field->Name = $field->class . $field->ID;
 				$field->Sort = $sort;
 				$field->write();
-			
+
 				return $field->EditSegment();
 			}
 		}
